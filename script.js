@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const form = document.getElementById('contactForm');
     const nameInput = document.getElementById('name');
     const emailInput = document.getElementById('email');
@@ -8,8 +8,15 @@ document.addEventListener('DOMContentLoaded', function() {
     const emailError = document.getElementById('emailError');
     const messageError = document.getElementById('messageError');
 
+    // Ensure HTTPS is used
+    if (location.protocol === "http:") {
+        location.replace("https://" + location.hostname + location.pathname);
+    }
+
     // Form validation logic
-    form.addEventListener('submit', function(event) {
+    form.addEventListener('submit', function (event) {
+        event.preventDefault(); // Prevent default submission
+
         let isValid = true;
 
         // Name validation
@@ -45,18 +52,22 @@ document.addEventListener('DOMContentLoaded', function() {
             messageError.textContent = '';
         }
 
-        // Prevent form submission if validation fails
-        if (!isValid) {
-            event.preventDefault();
-            return;
-        }
+        // If validation fails, stop submission
+        if (!isValid) return;
 
-        // Create a confirmation box before submission
-        const confirmation = confirm('Are you sure you want to submit the form?');
-        if (!confirmation) {
-            // If the user clicks "Cancel", prevent form submission
-            event.preventDefault();
-        }
+        // Use SweetAlert2 for confirmation instead of confirm()
+        Swal.fire({
+            title: "Are you sure?",
+            text: "Do you want to submit the form?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes, Submit",
+            cancelButtonText: "Cancel"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.submit(); // Submit form if confirmed
+            }
+        });
     });
 
     // Email validation function
