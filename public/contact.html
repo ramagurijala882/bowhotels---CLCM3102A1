@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Welcome to Bow Hotels Ltd. Discover luxury stays with premium amenities and great hospitality.">
+    <meta name="keywords" content="Bow Hotels, luxury hotels, hotel booking, best hotels">
+    <title>Bow Hotels Ltd.</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <img src="images/blogo.jpeg" alt="Bow Hotels Ltd Logo">
+            <h1>Bow Hotels Ltd.</h1>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="index.html" class="cta-button">Home</a></li>
+                <li><a href="hotels.html" class="cta-button">Hotels</a></li>
+                <li><a href="contact.html" class="cta-button">Contact Us</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+
+        <div class="image-box">
+            <img src="images/hotel2rooms.jpeg" alt="Hotel 1">
+            <img src="images/hotel2bed.jpeg" alt="Hotel 2">
+            <img src="images/hotel1bed.jpeg" alt="Hotel 3">
+            <img src="images/hotel1rooms.png" alt="Hotel 3">
+        </div>
+
+
+        <section class="contact">
+            <h2>Contact Us</h2>
+            <p>If you have any inquiries or would like to make a booking, please reach out to us using the form below.</p>
+
+            <form action="submit_contact.php" method="post" class="contact-form" id="contactForm">
+                <div class="form-group">
+                    <label for="name">Full Name </label>
+                    <input type="text" id="name" name="name" required autocomplete="name">
+                    <span id="nameError" class="error-message"></span> <!-- Error message element -->
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <input type="tel" id="phone" name="phone" required autocomplete="off">
+                    <span id="PhoneError" class="error-message"></span> <!-- Error message element -->
+                </div>
+
+
+                <div class="form-group">
+                    <label for="email"> Email</label>
+                    <input type="email" id="email" name="email" required autocomplete="off">
+                    <span id="emailError" class="error-message"></span> <!-- Error message element -->
+                </div>
+
+                <div class="form-group">
+                    <label for="subject">Subject</label>
+                    <input type="text" id="subject" name="subject" required autocomplete="off">
+                </div>
+
+                <div class="form-group">
+                    <label for="message">Message</label>
+                    <textarea id="message" name="message" rows="5" required autocomplete="off"></textarea>
+                    <span id="messageError" class="error-message"></span> <!-- Error message element -->
+                </div>
+
+                <button type="submit" class="cta-button">Send Message</button>
+            </form>
+
+            <h3>Our Contact Details</h3>
+            <p>Email: info@bowhotels.com</p>
+            <p>Phone: +123 456 7890</p>
+            <p>Address: 123 Bow Street, Hotel District, Downtown City, Calgary, Canada</p>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2024 Bow Hotels Ltd. All rights reserved.</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
