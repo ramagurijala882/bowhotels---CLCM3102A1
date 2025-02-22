@@ -1,41 +1,60 @@
 <?php
-// Enable error reporting for debugging
-ini_set('display_errors', 1);
+// Secure headers
+header("Content-Type: text/html; charset=UTF-8");
+header("X-Frame-Options: DENY");
+header("X-XSS-Protection: 1; mode=block");
+
+// Disable error display in production
+ini_set('display_errors', 0);
 error_reporting(E_ALL);
 
-// Replace with your RDS database credentials
+// Database credentials (Use environment variables in production)
 $servername = "g4lab8.czptxhzjxjrt.us-east-1.rds.amazonaws.com";
 $username = "admin";
 $password = "Melburn3$";
 $dbname = "g4lab8";
 
-// Create connection
-$conn = new mysqli($servername, $username, $password, $dbname);
+try {
+    // Establish database connection
+    $conn = new mysqli($servername, $username, $password, $dbname);
 
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
+    // Check for connection errors
+    if ($conn->connect_error) {
+        throw new Exception("Database connection failed: " . $conn->connect_error);
+    }
 
-// Get form data
-$name = $_POST['name'];
-$phone = $_POST['phone'];
-$email = $_POST['email'];
-$subject = $_POST['subject'];
-$message = $_POST['message'];
+    // Get and sanitize form data
+    $name = filter_input(INPUT_POST, 'name', FILTER_SANITIZE_STRING);
+    $phone = filter_input(INPUT_POST, 'phone', FILTER_SANITIZE_STRING);
+    $email = filter_input(INPUT_POST, 'email', FILTER_VALIDATE_EMAIL);
+    $subject = filter_input(INPUT_POST, 'subject', FILTER_SANITIZE_STRING);
+    $message = filter_input(INPUT_POST, 'message', FILTER_SANITIZE_STRING);
 
-// Use prepared statements to prevent SQL injection
-$stmt = $conn->prepare("INSERT INTO contacts (name, phone, email, subject, message) VALUES (?, ?, ?, ?, ?)");
-$stmt->bind_param("sssss", $name, $phone, $email, $subject, $message);
+    // Validate required fields
+    if (!$name || !$phone || !$email || !$subject || !$message) {
+        throw new Exception("All fields are required.");
+    }
 
-// Execute the query and check for success
-if ($stmt->execute()) {
+    // Use prepared statements to prevent SQL injection
+    $stmt = $conn->prepare("INSERT INTO contacts (name, phone, email, subject, message) VALUES (?, ?, ?, ?, ?)");
+    if (!$stmt) {
+        throw new Exception("Statement preparation failed: " . $conn->error);
+    }
+
+    $stmt->bind_param("sssss", $name, $phone, $email, $subject, $message);
+
+    // Execute the query and check for success
+    if (!$stmt->execute()) {
+        throw new Exception("Error inserting data: " . $stmt->error);
+    }
+
     echo "New record created successfully";
-} else {
-    echo "Error: " . $stmt->error;
-}
 
-// Close connection
-$stmt->close();
-$conn->close();
+    // Close connections
+    $stmt->close();
+    $conn->close();
+} catch (Exception $e) {
+    error_log($e->getMessage()); // Log errors for debugging
+    echo "An error occurred. Please try again later."; // Display user-friendly message
+}
 ?>
