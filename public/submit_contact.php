@@ -3,19 +3,29 @@
 header("Content-Type: text/html; charset=UTF-8");
 header("X-Frame-Options: DENY");
 header("X-XSS-Protection: 1; mode=block");
+header("Referrer-Policy: no-referrer");
+header("Permissions-Policy: interest-cohort=()");
 
 // Disable error display in production
 ini_set('display_errors', 0);
 error_reporting(E_ALL);
 
-// Database credentials (Use environment variables in production)
-$servername = "g4lab8.czptxhzjxjrt.us-east-1.rds.amazonaws.com";
-$username = "admin";
-$password = "Melburn3$";
-$dbname = "g4lab8";
+// Load database credentials from environment variables
+$servername = getenv('DB_HOST') ?: 'g4lab8.czptxhzjxjrt.us-east-1.rds.amazonaws.com';
+$username = getenv('DB_USER') ?: 'admin';
+$password = getenv('DB_PASS') ?: 'Melburn3$';
+$dbname = getenv('DB_NAME') ?: 'g4lab8';
+
+// Global exception handler
+function customExceptionHandler($exception) {
+    error_log("Exception: " . $exception->getMessage()); // Log error
+    http_response_code(500); // Send a proper HTTP error status
+    echo json_encode(["error" => "An unexpected error occurred. Please try again later."]);
+}
+set_exception_handler("customExceptionHandler");
 
 try {
-    // Establish database connection
+    // Establish database connection using MySQLi
     $conn = new mysqli($servername, $username, $password, $dbname);
 
     // Check for connection errors
@@ -24,11 +34,11 @@ try {
     }
 
     // Get and sanitize form data
-    $name = filter_input(INPUT_POST, 'name', FILTER_SANITIZE_STRING);
-    $phone = filter_input(INPUT_POST, 'phone', FILTER_SANITIZE_STRING);
+    $name = filter_input(INPUT_POST, 'name', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $phone = filter_input(INPUT_POST, 'phone', FILTER_SANITIZE_NUMBER_INT);
     $email = filter_input(INPUT_POST, 'email', FILTER_VALIDATE_EMAIL);
-    $subject = filter_input(INPUT_POST, 'subject', FILTER_SANITIZE_STRING);
-    $message = filter_input(INPUT_POST, 'message', FILTER_SANITIZE_STRING);
+    $subject = filter_input(INPUT_POST, 'subject', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $message = filter_input(INPUT_POST, 'message', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
     // Validate required fields
     if (!$name || !$phone || !$email || !$subject || !$message) {
@@ -48,13 +58,13 @@ try {
         throw new Exception("Error inserting data: " . $stmt->error);
     }
 
-    echo "New record created successfully";
+    // Success response
+    echo json_encode(["success" => "New record created successfully"]);
 
     // Close connections
     $stmt->close();
     $conn->close();
 } catch (Exception $e) {
-    error_log($e->getMessage()); // Log errors for debugging
-    echo "An error occurred. Please try again later."; // Display user-friendly message
+    throw $e; // Handled by the global exception handler
 }
 ?>
